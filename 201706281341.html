@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<title>Bash SSH快速切换多服务器脚本</title>
+
+<xmp theme="united" style="display:none;">
+# Bash SSH快速切换多服务器脚本
+
+```bash
+#!/bin/sh
+echo "选择服务器(直接输入前面的数字)直接登录"
+servernames=("Server name1" "Server name2")
+serverusers=("username1" "username1")
+serverips=("ip1" "ip2")
+
+for i in `seq 0 $[${#servernames[*]}-1]`
+do
+    echo $[$i+1]:${servernames[${i}]}
+done
+
+read index
+user=${serverusers[$[$index-1]]}
+ip=${serverips[$[$index-1]]}
+ssh $user@$ip
+
+```
+</xmp>
+
+<script src="strapdown/strapdown.js"></script>
+</html>
