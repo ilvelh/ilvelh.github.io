@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+ <head> 
+  <meta charset="utf-8" /> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" /> 
+  <title>随机加减法</title> 
+  <meta name="keywords" content="随机加减法" /> 
+  <meta name="description" content="随机加减法" /> 
+  <link rel="stylesheet" href="css/bootstrap.min.css" /> 
+  <script src="js/jquery.v3.4.1.js"></script> 
+  <script src="js/jquery.print.js"></script> 
+  <script src="js/bootstrap.min.js"> </script> 
+ </head> 
+ <body> 
+  <div class="container"> 
+   <div class="container"> 
+    <div> 
+     <form method="get" id="forms"> 
+      <table class="table table-bordered form-inline"> 
+       <thead> 
+        <tr> 
+         <th colspan="2" class="text-center">随机生成加减题目</th> 
+        </tr> 
+       </thead> 
+       <tbody> 
+        <tr> 
+         <td width="22%"><label class="control-label" for="province">选择随机类型：</label></td> 
+           <td>
+            <select id="range" class="form-control">
+              <option value='100'>100以内</option>
+              <option value='20'>20以内</option>
+              <option value='1000'>1000以内</option>
+            </select>
+            <select id="type" class="form-control">
+              <option value="multiplePlus">乘和加</option>
+              <option value="mixed">加减法</option>
+              <option value='plus'>加法</option>
+              <option value="minus">减法</option>
+            </select>
+            <input id="quotationNumber" type="number" step="1" value="36" placeholder="生成数量" />
+            <input id="generate" class="btn btn-default" type="button" value="生成" />
+            <input id="print" class="btn btn-default" type="button" value="打印" disabled="true" />
+          </td> 
+        </tr> 
+       </tbody> 
+      </table> 
+     </form> 
+    </div> 
+    <div> 
+     <table class="table table-hover table-bordered"  id="qtable"> 
+      <thead> 
+       <tr>
+         <th colspan="4" class="text-center" id="title">测试题</th> 
+       </tr>
+       <tr> 
+        <th width="25%" style="padding:6px;">题目</th> 
+        <th width="25%" style="padding:6px;">题目</th> 
+        <th width="25%" style="padding:6px;">题目</th> 
+        <th width="25%" style="padding:6px;">题目</th> 
+       </tr> 
+      </thead> 
+      <tbody id="content"> 
+      </tbody> 
+     </table> 
+    </div> 
+   </div> 
+  </div>  
+ </body>
+ <script type="text/javascript">
+   $(function(){
+      $('#generate').click(function(){
+        var range = $('#range').val();
+        var type = $('#type').val();
+        var quotationNumber = $('#quotationNumber').val();
+        var quotations = [];
+        for(i = 0;i < quotationNumber; i++){
+          if(type === 'mixed'){
+            quotations.push(generateMixed(range))
+          }else if(type === 'plus'){
+            quotations.push(generatePuls(range))
+          }else if(type === 'minus'){
+            quotations.push(generateMinus(range))
+          }else if(type === 'multiplePlus'){
+            quotations.push(generateMultiplePlus(range))
+          }
+        }
+        $('#title').text(range + "以内测试题")
+        renderTd(quotations)
+        $('#print').removeAttr('disabled')
+      })
+      $('#print').click(function(){
+          //$.print('#qtable')
+          
+          $("#qtable").print({
+            globalStyles: true,
+            mediaPrint: false,
+            stylesheet: null,
+            noPrintSelector: ".no-print",
+            iframe: true,
+            append: null,
+            prepend: null,
+            manuallyCopyFormValues: true,
+            deferred: $.Deferred(),
+            timeout: 750,
+            title: null,
+            doctype: '<!doctype html>'
+          });
+      })
+   })
+
+   function renderTd(quotations){
+      $('#content').find('tr').remove();
+      var quotationSize = quotations.length
+      var tr = null;
+      $.each(quotations,function(index,quotation){
+        if(index % 4 == 0){
+          tr = $('<tr></tr>');
+          $('#content').append($(tr))
+          $('#content').append($('<tr><td style="height:33px;"><td></td><td></td><td></td></tr>'))
+          $('#content').append($('<tr><td style="height:33px;"</td><td></td><td></td><td></td></tr>'))
+        }
+        tr.append('<td style="padding:6px;height:33px;">'+quotation+'</td>')
+      })
+   }
+
+
+   function generateMixed(range){
+   	var number1 = parseInt(Math.random()*range)
+    var number2 = parseInt(Math.random()*range)
+	  var number3 = parseInt(Math.random()*range)
+	  if(number1 < 1 || number2 < 1 || number3 < 1){
+		return generateMixed(range)
+	  }
+	  var op1 =  generateRandomOperator()
+      var op2 =  generateRandomOperator()
+      if(op1 == '-' && number2 >= number1){
+      	return generateMixed(range)
+      }
+      if(op1 == '+' && (number1 + number2) > range){
+      	return generateMixed(range)
+      }
+      var exp = number1 + " " + op1 + " " + number2+ " " + op2 + " " + number3
+      var result = parseInt(eval(exp))
+      if(result < 0 || result > range){
+      	return generateMixed(range)
+      }
+      return exp + " = "
+   }
+
+
+   function generateMultiplePlus(range){
+    var number1 = parseInt(Math.random()*range)
+    var number2 = parseInt(Math.random()*range)
+    var number3 = parseInt(Math.random()*range)
+    if(number1 < 1 || number2 < 1 || number3 < 1){
+      return generateMultiplePlus(range)
+    }
+    var op1 =  '+'
+    var op2 =  'x'
+    var exp = number1 + " " + op1 + " " + number2+ " " + op2 + " " + number3
+    return exp + " = "
+   }
+
+   function generateRandomOperator(){
+   	return parseInt(Math.random()*100000) % 2== 0 ? "+" : "-"
+   }
+
+   function generateRandomMultAndPlusOperator(){
+    return parseInt(Math.random()*100000) % 2== 0 ? "+" : "x"
+   }
+
+
+
+
+
+
+
+   function generatePuls(range){
+      var number1 = parseInt(Math.random()*range)
+      var number2 = parseInt(Math.random()*range)
+	  var number3 = parseInt(Math.random()*range)
+	  if(number1 < 1 || number2 < 1 || number3 < 1){
+		return generatePuls(range)
+	  }
+	  if(number1 + number2 + number3 > range) {
+	  	return generatePuls(range)
+	  }
+      return number1 + " + " + number2 + " + " + number3 + " = ";
+   }
+
+   function generateMinus(range){
+    var number1 = parseInt(Math.random()*range)
+    var number2 = parseInt(Math.random()*range)
+    var number3 = parseInt(Math.random()*range)
+    if(number1 < 1 || number2 < 1 || number3 < 1){
+		return generateMinus(range)
+	}
+    if(number2 >= number1 || number3 >= number2 || (number2 + number3) > number1){
+    	return generateMinus(range)
+    }
+	return number1 + " - " + number2 + " - " + number3 + " = ";
+   }
+ </script>
+</html>
